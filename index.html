@@ -15,7 +15,7 @@
 
     <div class="content">
         <div class="mood-selector">
-            <h2>Como você está se sentindo hoje?</h2>
+            <h2>Como você está se sentindo?</h2>
             <div class="mood-options">
                 <div class="mood-option" data-mood="muito-feliz">
                     <span class="mood-emoji">😄</span>
@@ -40,6 +40,11 @@
             </div>
         </div>
 
+        <div class="date-section">
+            <h3>📅 Data do registro</h3>
+            <input type="date" class="date-input" id="dateInput">
+        </div>
+
         <div class="notes-section">
             <h3>📝 Anotações do dia</h3>
             <textarea
@@ -48,11 +53,9 @@
                     id="notesInput"
             ></textarea>
         </div>
-
         <button class="save-btn" id="saveBtn" disabled>
             💾 Salvar Registro
         </button>
-
         <div class="history">
             <h3>📅 Histórico de Humor</h3>
             <div id="historyContainer">
@@ -63,17 +66,22 @@
         </div>
     </div>
 </div>
-
 <script>
     class VibeApp {
         constructor() {
             this.selectedMood = null;
             this.moodData = [];
+            this.storageKey = 'vibe-mood-data';
             this.init();
             this.loadData();
         }
 
         init() {
+            // Definir data padrão como hoje
+            const today = new Date();
+            const dateString = today.toISOString().split('T')[0];
+            document.getElementById('dateInput').value = dateString;
+
             // Selecionar humor
             document.querySelectorAll('.mood-option').forEach(option => {
                 option.addEventListener('click', (e) => this.selectMood(e));
@@ -84,6 +92,7 @@
 
             // Verificar se pode habilitar botão de salvar
             document.getElementById('notesInput').addEventListener('input', () => this.checkSaveButton());
+            document.getElementById('dateInput').addEventListener('change', () => this.checkSaveButton());
         }
 
         selectMood(event) {
@@ -101,8 +110,9 @@
         checkSaveButton() {
             const saveBtn = document.getElementById('saveBtn');
             const hasNotes = document.getElementById('notesInput').value.trim() !== '';
+            const hasDate = document.getElementById('dateInput').value !== '';
 
-            if (this.selectedMood && hasNotes) {
+            if (this.selectedMood && hasNotes && hasDate) {
                 saveBtn.disabled = false;
             } else {
                 saveBtn.disabled = true;
@@ -113,26 +123,31 @@
             if (!this.selectedMood) return;
 
             const notes = document.getElementById('notesInput').value.trim();
-            const today = new Date();
+            const selectedDate = document.getElementById('dateInput').value;
+            const dateObj = new Date(selectedDate + 'T12:00:00'); // Meio dia para evitar problemas de timezone
 
             const entry = {
                 id: Date.now(),
-                date: today.toLocaleDateString('pt-BR'),
+                date: dateObj.toLocaleDateString('pt-BR'),
+                dateKey: selectedDate, // Para facilitar comparações
                 mood: this.selectedMood,
                 notes: notes,
-                timestamp: today.getTime()
+                timestamp: dateObj.getTime()
             };
 
-            // Verificar se já existe entrada para hoje
-            const todayEntries = this.moodData.filter(item => item.date === entry.date);
-            if (todayEntries.length > 0) {
+            // Verificar se já existe entrada para a data selecionada
+            const existingEntryIndex = this.moodData.findIndex(item => item.dateKey === entry.dateKey);
+
+            if (existingEntryIndex !== -1) {
                 // Atualizar entrada existente
-                const index = this.moodData.findIndex(item => item.date === entry.date);
-                this.moodData[index] = entry;
+                this.moodData[existingEntryIndex] = entry;
             } else {
                 // Adicionar nova entrada
-                this.moodData.unshift(entry);
+                this.moodData.push(entry);
             }
+
+            // Ordenar por data (mais recente primeiro)
+            this.moodData.sort((a, b) => b.timestamp - a.timestamp);
 
             this.saveData();
             this.renderHistory();
@@ -155,6 +170,11 @@
 
             // Limpar anotações
             document.getElementById('notesInput').value = '';
+
+            // Manter a data atual
+            const today = new Date();
+            const dateString = today.toISOString().split('T')[0];
+            document.getElementById('dateInput').value = dateString;
 
             // Resetar estado
             this.selectedMood = null;
@@ -191,15 +211,29 @@
         }
 
         saveData() {
-            // Em um ambiente real, isso seria enviado para um servidor
-            // Por ora, vamos simular o armazenamento
-            console.log('Dados salvos:', this.moodData);
+            try {
+                localStorage.setItem(this.storageKey, JSON.stringify(this.moodData));
+                console.log('Dados salvos no localStorage');
+            } catch (error) {
+                console.error('Erro ao salvar dados:', error);
+            }
         }
 
         loadData() {
-            // Em um ambiente real, isso carregaria dados de um servidor
-            // Por ora, vamos começar com dados vazios
-            this.moodData = [];
+            try {
+                const savedData = localStorage.getItem(this.storageKey);
+                if (savedData) {
+                    this.moodData = JSON.parse(savedData);
+                    // Ordenar por data (mais recente primeiro)
+                    this.moodData.sort((a, b) => b.timestamp - a.timestamp);
+                    console.log('Dados carregados do localStorage:', this.moodData);
+                } else {
+                    this.moodData = [];
+                }
+            } catch (error) {
+                console.error('Erro ao carregar dados:', error);
+                this.moodData = [];
+            }
             this.renderHistory();
         }
     }

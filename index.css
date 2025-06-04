@@ -16,7 +16,7 @@ body {
     margin: 0 auto;
     background: white;
     border-radius: 20px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
     overflow: hidden;
 }
 
@@ -73,7 +73,7 @@ body {
 
 .mood-option:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 
 .mood-option.selected {
@@ -91,6 +91,32 @@ body {
 .mood-label {
     font-weight: bold;
     font-size: 1.1em;
+}
+
+.date-section {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.date-section h3 {
+    color: #333;
+    margin-bottom: 15px;
+    font-size: 1.5em;
+}
+
+.date-input {
+    padding: 12px 20px;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    font-size: 1.1em;
+    font-family: inherit;
+    transition: border-color 0.3s ease;
+    background: white;
+}
+
+.date-input:focus {
+    outline: none;
+    border-color: #4facfe;
 }
 
 .notes-section {
