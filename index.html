@@ -38,9 +38,26 @@
                     <div class="mood-label">Muito Triste</div>
                 </div>
             </div>
-            <div id="selectedMoodDisplay" class="selected-mood" style="display: none;">
-                <p>Humor selecionado: <span id="selectedMoodText"></span></p>
+        </div>
+
+        <div class="notes-section">
+            <h3>📝 Anotações do dia</h3>
+            <textarea
+                    class="notes-textarea"
+                    placeholder="Como foi seu dia? O que aconteceu? Como você se sente? Escreva aqui suas reflexões..."
+                    id="notesInput"
+                    maxlength="500"
+            ></textarea>
+            <div class="char-counter">
+                <span id="charCount">0</span>/500 caracteres
             </div>
+        </div>
+
+        <div class="save-section">
+            <button class="save-btn" id="saveBtn" disabled>
+                💾 Salvar Registro
+            </button>
+            <div id="statusMessage" class="status-message"></div>
         </div>
     </div>
 </div>
@@ -48,38 +65,96 @@
 <script>
     let selectedMood = null;
 
+    // Seleção de humor
     function selectMood(element, mood) {
-        // Remove seleção anterior
         document.querySelectorAll('.mood-option').forEach(opt => {
             opt.classList.remove('selected');
         });
 
-        // Adiciona seleção atual
         element.classList.add('selected');
         selectedMood = mood;
-
-        // Mostra humor selecionado
-        const display = document.getElementById('selectedMoodDisplay');
-        const text = document.getElementById('selectedMoodText');
-
-        const moodLabels = {
-            'muito-feliz': 'Muito Feliz 😄',
-            'feliz': 'Feliz 😊',
-            'neutro': 'Neutro 😐',
-            'triste': 'Triste 😔',
-            'muito-triste': 'Muito Triste 😢'
-        };
-
-        text.textContent = moodLabels[mood];
-        display.style.display = 'block';
+        checkSaveButton();
     }
 
-    // Adicionar event listeners
+    // Contador de caracteres
+    function updateCharCounter() {
+        const input = document.getElementById('notesInput');
+        const counter = document.getElementById('charCount');
+        counter.textContent = input.value.length;
+        checkSaveButton();
+    }
+
+    // Verificar se pode habilitar botão salvar
+    function checkSaveButton() {
+        const saveBtn = document.getElementById('saveBtn');
+        const hasNotes = document.getElementById('notesInput').value.trim() !== '';
+
+        if (selectedMood && hasNotes) {
+            saveBtn.disabled = false;
+        } else {
+            saveBtn.disabled = true;
+        }
+    }
+
+    // Salvar registro
+    function saveEntry() {
+        const notes = document.getElementById('notesInput').value.trim();
+        const statusMessage = document.getElementById('statusMessage');
+
+        if (!selectedMood || !notes) {
+            showStatus('Selecione um humor e adicione suas anotações!', 'error');
+            return;
+        }
+
+        // Simular salvamento
+        const entry = {
+            mood: selectedMood,
+            notes: notes,
+            date: new Date().toLocaleDateString('pt-BR'),
+            timestamp: Date.now()
+        };
+
+        console.log('Registro salvo:', entry);
+        showStatus('Registro salvo com sucesso! ✨', 'success');
+
+        // Limpar formulário após 2 segundos
+        setTimeout(() => {
+            resetForm();
+        }, 2000);
+    }
+
+    // Mostrar mensagem de status
+    function showStatus(message, type) {
+        const statusElement = document.getElementById('statusMessage');
+        statusElement.textContent = message;
+        statusElement.className = `status-message status-${type}`;
+        statusElement.style.display = 'block';
+
+        setTimeout(() => {
+            statusElement.style.display = 'none';
+        }, 3000);
+    }
+
+    // Resetar formulário
+    function resetForm() {
+        document.querySelectorAll('.mood-option').forEach(opt => {
+            opt.classList.remove('selected');
+        });
+        document.getElementById('notesInput').value = '';
+        document.getElementById('charCount').textContent = '0';
+        selectedMood = null;
+        checkSaveButton();
+    }
+
+    // Event listeners
     document.querySelectorAll('.mood-option').forEach(option => {
         option.addEventListener('click', function() {
             selectMood(this, this.dataset.mood);
         });
     });
+
+    document.getElementById('notesInput').addEventListener('input', updateCharCounter);
+    document.getElementById('saveBtn').addEventListener('click', saveEntry);
 </script>
 </body>
 </html>
