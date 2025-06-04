@@ -3,56 +3,47 @@
     padding: 0;
     box-sizing: border-box;
 }
-
 body {
     font-family: 'Arial', sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
     padding: 20px;
 }
-
 .container {
     max-width: 800px;
     margin: 0 auto;
     background: white;
     border-radius: 20px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
     overflow: hidden;
 }
-
 .header {
     background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
     color: white;
     padding: 30px;
     text-align: center;
 }
-
 .header h1 {
     font-size: 2.5em;
     margin-bottom: 10px;
     font-weight: 300;
 }
-
 .header p {
     opacity: 0.9;
     font-size: 1.1em;
 }
-
 .content {
     padding: 40px;
 }
-
 .mood-selector {
     text-align: center;
     margin-bottom: 30px;
 }
-
 .mood-selector h2 {
     color: #333;
     margin-bottom: 20px;
     font-size: 1.8em;
 }
-
 .mood-options {
     display: flex;
     justify-content: center;
@@ -60,7 +51,6 @@ body {
     flex-wrap: wrap;
     margin-bottom: 20px;
 }
-
 .mood-option {
     background: #f8f9fa;
     border: 3px solid transparent;
@@ -70,40 +60,33 @@ body {
     transition: all 0.3s ease;
     min-width: 100px;
 }
-
 .mood-option:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
 }
-
 .mood-option.selected {
     border-color: #4facfe;
     background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
     color: white;
 }
-
 .mood-emoji {
     font-size: 3em;
     display: block;
     margin-bottom: 10px;
 }
-
 .mood-label {
     font-weight: bold;
     font-size: 1.1em;
 }
-
 .date-section {
     margin-bottom: 30px;
     text-align: center;
 }
-
 .date-section h3 {
     color: #333;
     margin-bottom: 15px;
     font-size: 1.5em;
 }
-
 .date-input {
     padding: 12px 20px;
     border: 2px solid #e9ecef;
@@ -113,22 +96,18 @@ body {
     transition: border-color 0.3s ease;
     background: white;
 }
-
 .date-input:focus {
     outline: none;
     border-color: #4facfe;
 }
-
 .notes-section {
     margin-bottom: 30px;
 }
-
 .notes-section h3 {
     color: #333;
     margin-bottom: 15px;
     font-size: 1.5em;
 }
-
 .notes-textarea {
     width: 100%;
     min-height: 120px;
@@ -140,12 +119,10 @@ body {
     resize: vertical;
     transition: border-color 0.3s ease;
 }
-
 .notes-textarea:focus {
     outline: none;
     border-color: #4facfe;
 }
-
 .save-btn {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
@@ -159,30 +136,25 @@ body {
     display: block;
     margin: 0 auto;
 }
-
 .save-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
 }
-
 .save-btn:disabled {
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
 }
-
 .history {
     margin-top: 40px;
     border-top: 2px solid #e9ecef;
     padding-top: 30px;
 }
-
 .history h3 {
     color: #333;
     margin-bottom: 20px;
     font-size: 1.5em;
 }
-
 .history-item {
     background: #f8f9fa;
     padding: 20px;
@@ -190,30 +162,70 @@ body {
     margin-bottom: 15px;
     border-left: 4px solid #4facfe;
 }
-
 .history-date {
     font-weight: bold;
     color: #667eea;
     margin-bottom: 10px;
 }
-
 .history-mood {
     font-size: 2em;
     margin-bottom: 10px;
 }
-
 .history-notes {
     color: #666;
     line-height: 1.5;
 }
-
 .empty-state {
     text-align: center;
     color: #999;
     font-style: italic;
     padding: 40px;
 }
-
+.charts-section {
+    margin-top: 40px;
+    border-top: 2px solid #e9ecef;
+    padding-top: 30px;
+    margin-bottom: 30px;
+}
+.charts-section h3 {
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 1.5em;
+    text-align: center;
+}
+.charts-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-bottom: 20px;
+}
+.chart-item {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    text-align: center;
+    height: 400px;
+    position: relative;
+}
+.chart-item canvas {
+    max-height: 300px !important;
+    max-width: 100% !important;
+}
+.chart-item h4 {
+    color: #333;
+    margin-bottom: 15px;
+    font-size: 1.2em;
+}
+.charts-empty {
+    text-align: center;
+    color: #999;
+    font-style: italic;
+    padding: 40px;
+    grid-column: 1 / -1;
+    background: #f8f9fa;
+    border-radius: 15px;
+}
 @media (max-width: 600px) {
     .mood-options {
         gap: 10px;
@@ -230,5 +242,9 @@ body {
 
     .content {
         padding: 20px;
+    }
+    .charts-container {
+        grid-template-columns: 1fr;
+        gap: 20px;
     }
 }

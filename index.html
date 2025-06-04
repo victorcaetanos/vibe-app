@@ -56,6 +56,20 @@
         <button class="save-btn" id="saveBtn" disabled>
             💾 Salvar Registro
         </button>
+        <div class="charts-section">
+            <h3>📊 Análise do Humor</h3>
+            <div class="charts-container">
+                <div class="chart-item">
+                    <h4>Distribuição de Humor</h4>
+                    <canvas id="pieChart" width="400" height="300"></canvas>
+                </div>
+                <div class="chart-item">
+                    <h4>Frequência de Humor</h4>
+                    <canvas id="barChart" width="400" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+
         <div class="history">
             <h3>📅 Histórico de Humor</h3>
             <div id="historyContainer">
@@ -66,12 +80,15 @@
         </div>
     </div>
 </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 <script>
     class VibeApp {
         constructor() {
             this.selectedMood = null;
             this.moodData = [];
             this.storageKey = 'vibe-mood-data';
+            this.pieChart = null;
+            this.barChart = null;
             this.init();
             this.loadData();
         }
@@ -151,6 +168,7 @@
 
             this.saveData();
             this.renderHistory();
+            this.renderCharts();
             this.resetForm();
 
             // Feedback visual
@@ -235,6 +253,188 @@
                 this.moodData = [];
             }
             this.renderHistory();
+            this.renderCharts();
+        }
+
+        renderCharts() {
+            if (this.moodData.length === 0) {
+                // Mostrar estado vazio para gráficos
+                const chartsContainer = document.querySelector('.charts-container');
+                chartsContainer.innerHTML = `
+                        <div class="charts-empty">
+                            Adicione alguns registros de humor para ver os gráficos! 📈
+                        </div>
+                    `;
+                return;
+            }
+
+            // Preparar dados para os gráficos
+            const moodCounts = this.getMoodCounts();
+            const moodLabels = {
+                'muito-feliz': 'Muito Feliz',
+                'feliz': 'Feliz',
+                'neutro': 'Neutro',
+                'triste': 'Triste',
+                'muito-triste': 'Muito Triste'
+            };
+
+            const moodColors = {
+                'muito-feliz': '#4CAF50',
+                'feliz': '#8BC34A',
+                'neutro': '#FFC107',
+                'triste': '#FF9800',
+                'muito-triste': '#F44336'
+            };
+
+            const labels = Object.keys(moodCounts).map(mood => moodLabels[mood]);
+            const data = Object.values(moodCounts);
+            const colors = Object.keys(moodCounts).map(mood => moodColors[mood]);
+
+            // Recriar container dos gráficos se necessário
+            const chartsContainer = document.querySelector('.charts-container');
+            chartsContainer.innerHTML = `
+                    <div class="chart-item">
+                        <h4>Distribuição de Humor</h4>
+                        <canvas id="pieChart"></canvas>
+                    </div>
+                    <div class="chart-item">
+                        <h4>Frequência de Humor</h4>
+                        <canvas id="barChart"></canvas>
+                    </div>
+                `;
+
+            // Criar gráfico de pizza
+            this.createPieChart(labels, data, colors);
+
+            // Criar gráfico de barras
+            this.createBarChart(labels, data, colors);
+        }
+
+        getMoodCounts() {
+            const counts = {};
+            this.moodData.forEach(entry => {
+                counts[entry.mood] = (counts[entry.mood] || 0) + 1;
+            });
+            return counts;
+        }
+
+        createPieChart(labels, data, colors) {
+            const ctx = document.getElementById('pieChart');
+            if (!ctx) return;
+
+            if (this.pieChart) {
+                this.pieChart.destroy();
+            }
+
+            this.pieChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors,
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 1,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                    return `${context.label}: ${context.parsed} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        createBarChart(labels, data, colors) {
+            const ctx = document.getElementById('barChart');
+            if (!ctx) return;
+
+            if (this.barChart) {
+                this.barChart.destroy();
+            }
+
+            this.barChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Quantidade',
+                        data: data,
+                        backgroundColor: colors,
+                        borderColor: colors,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 1.2,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.label}: ${context.parsed.y} registro${context.parsed.y > 1 ? 's' : ''}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1,
+                                font: {
+                                    size: 11
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Registros',
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: {
+                                    size: 11
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Humor',
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        }
+                    }
+                }
+            });
         }
     }
 
