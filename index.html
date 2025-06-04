@@ -10,7 +10,7 @@
 <div class="container">
     <div class="header">
         <h1>🌈 Vibe</h1>
-        <p>Seu registro de humor diário</p>
+        <p>Registre seu humor diário e acompanhe sua jornada emocional</p>
     </div>
 
     <div class="content">
@@ -46,115 +46,168 @@
                     class="notes-textarea"
                     placeholder="Como foi seu dia? O que aconteceu? Como você se sente? Escreva aqui suas reflexões..."
                     id="notesInput"
-                    maxlength="500"
             ></textarea>
-            <div class="char-counter">
-                <span id="charCount">0</span>/500 caracteres
-            </div>
         </div>
 
-        <div class="save-section">
-            <button class="save-btn" id="saveBtn" disabled>
-                💾 Salvar Registro
-            </button>
-            <div id="statusMessage" class="status-message"></div>
+        <button class="save-btn" id="saveBtn" disabled>
+            💾 Salvar Registro
+        </button>
+
+        <div class="history">
+            <h3>📅 Histórico de Humor</h3>
+            <div id="historyContainer">
+                <div class="empty-state">
+                    Nenhum registro ainda. Comece salvando seu humor de hoje! 🌟
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-    let selectedMood = null;
+    class VibeApp {
+        constructor() {
+            this.selectedMood = null;
+            this.moodData = [];
+            this.init();
+            this.loadData();
+        }
 
-    // Seleção de humor
-    function selectMood(element, mood) {
-        document.querySelectorAll('.mood-option').forEach(opt => {
-            opt.classList.remove('selected');
-        });
+        init() {
+            // Selecionar humor
+            document.querySelectorAll('.mood-option').forEach(option => {
+                option.addEventListener('click', (e) => this.selectMood(e));
+            });
 
-        element.classList.add('selected');
-        selectedMood = mood;
-        checkSaveButton();
-    }
+            // Salvar registro
+            document.getElementById('saveBtn').addEventListener('click', () => this.saveEntry());
 
-    // Contador de caracteres
-    function updateCharCounter() {
-        const input = document.getElementById('notesInput');
-        const counter = document.getElementById('charCount');
-        counter.textContent = input.value.length;
-        checkSaveButton();
-    }
+            // Verificar se pode habilitar botão de salvar
+            document.getElementById('notesInput').addEventListener('input', () => this.checkSaveButton());
+        }
 
-    // Verificar se pode habilitar botão salvar
-    function checkSaveButton() {
-        const saveBtn = document.getElementById('saveBtn');
-        const hasNotes = document.getElementById('notesInput').value.trim() !== '';
+        selectMood(event) {
+            // Remove seleção anterior
+            document.querySelectorAll('.mood-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
 
-        if (selectedMood && hasNotes) {
-            saveBtn.disabled = false;
-        } else {
-            saveBtn.disabled = true;
+            // Adiciona seleção atual
+            event.currentTarget.classList.add('selected');
+            this.selectedMood = event.currentTarget.dataset.mood;
+            this.checkSaveButton();
+        }
+
+        checkSaveButton() {
+            const saveBtn = document.getElementById('saveBtn');
+            const hasNotes = document.getElementById('notesInput').value.trim() !== '';
+
+            if (this.selectedMood && hasNotes) {
+                saveBtn.disabled = false;
+            } else {
+                saveBtn.disabled = true;
+            }
+        }
+
+        saveEntry() {
+            if (!this.selectedMood) return;
+
+            const notes = document.getElementById('notesInput').value.trim();
+            const today = new Date();
+
+            const entry = {
+                id: Date.now(),
+                date: today.toLocaleDateString('pt-BR'),
+                mood: this.selectedMood,
+                notes: notes,
+                timestamp: today.getTime()
+            };
+
+            // Verificar se já existe entrada para hoje
+            const todayEntries = this.moodData.filter(item => item.date === entry.date);
+            if (todayEntries.length > 0) {
+                // Atualizar entrada existente
+                const index = this.moodData.findIndex(item => item.date === entry.date);
+                this.moodData[index] = entry;
+            } else {
+                // Adicionar nova entrada
+                this.moodData.unshift(entry);
+            }
+
+            this.saveData();
+            this.renderHistory();
+            this.resetForm();
+
+            // Feedback visual
+            const saveBtn = document.getElementById('saveBtn');
+            const originalText = saveBtn.textContent;
+            saveBtn.textContent = '✅ Salvo!';
+            setTimeout(() => {
+                saveBtn.textContent = originalText;
+            }, 2000);
+        }
+
+        resetForm() {
+            // Limpar seleção de humor
+            document.querySelectorAll('.mood-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+
+            // Limpar anotações
+            document.getElementById('notesInput').value = '';
+
+            // Resetar estado
+            this.selectedMood = null;
+            this.checkSaveButton();
+        }
+
+        renderHistory() {
+            const container = document.getElementById('historyContainer');
+
+            if (this.moodData.length === 0) {
+                container.innerHTML = `
+                        <div class="empty-state">
+                            Nenhum registro ainda. Comece salvando seu humor de hoje! 🌟
+                        </div>
+                    `;
+                return;
+            }
+
+            const moodEmojis = {
+                'muito-feliz': '😄',
+                'feliz': '😊',
+                'neutro': '😐',
+                'triste': '😔',
+                'muito-triste': '😢'
+            };
+
+            container.innerHTML = this.moodData.map(entry => `
+                    <div class="history-item">
+                        <div class="history-date">${entry.date}</div>
+                        <div class="history-mood">${moodEmojis[entry.mood]}</div>
+                        <div class="history-notes">${entry.notes}</div>
+                    </div>
+                `).join('');
+        }
+
+        saveData() {
+            // Em um ambiente real, isso seria enviado para um servidor
+            // Por ora, vamos simular o armazenamento
+            console.log('Dados salvos:', this.moodData);
+        }
+
+        loadData() {
+            // Em um ambiente real, isso carregaria dados de um servidor
+            // Por ora, vamos começar com dados vazios
+            this.moodData = [];
+            this.renderHistory();
         }
     }
 
-    // Salvar registro
-    function saveEntry() {
-        const notes = document.getElementById('notesInput').value.trim();
-        const statusMessage = document.getElementById('statusMessage');
-
-        if (!selectedMood || !notes) {
-            showStatus('Selecione um humor e adicione suas anotações!', 'error');
-            return;
-        }
-
-        // Simular salvamento
-        const entry = {
-            mood: selectedMood,
-            notes: notes,
-            date: new Date().toLocaleDateString('pt-BR'),
-            timestamp: Date.now()
-        };
-
-        console.log('Registro salvo:', entry);
-        showStatus('Registro salvo com sucesso! ✨', 'success');
-
-        // Limpar formulário após 2 segundos
-        setTimeout(() => {
-            resetForm();
-        }, 2000);
-    }
-
-    // Mostrar mensagem de status
-    function showStatus(message, type) {
-        const statusElement = document.getElementById('statusMessage');
-        statusElement.textContent = message;
-        statusElement.className = `status-message status-${type}`;
-        statusElement.style.display = 'block';
-
-        setTimeout(() => {
-            statusElement.style.display = 'none';
-        }, 3000);
-    }
-
-    // Resetar formulário
-    function resetForm() {
-        document.querySelectorAll('.mood-option').forEach(opt => {
-            opt.classList.remove('selected');
-        });
-        document.getElementById('notesInput').value = '';
-        document.getElementById('charCount').textContent = '0';
-        selectedMood = null;
-        checkSaveButton();
-    }
-
-    // Event listeners
-    document.querySelectorAll('.mood-option').forEach(option => {
-        option.addEventListener('click', function() {
-            selectMood(this, this.dataset.mood);
-        });
+    // Inicializar aplicativo quando a página carregar
+    document.addEventListener('DOMContentLoaded', () => {
+        new VibeApp();
     });
-
-    document.getElementById('notesInput').addEventListener('input', updateCharCounter);
-    document.getElementById('saveBtn').addEventListener('click', saveEntry);
 </script>
 </body>
 </html>
