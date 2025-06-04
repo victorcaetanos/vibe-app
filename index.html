@@ -14,8 +14,72 @@
     </div>
 
     <div class="content">
-        <p>Em breve: sistema de registro de humor!</p>
+        <div class="mood-selector">
+            <h2>Como você está se sentindo hoje?</h2>
+            <div class="mood-options">
+                <div class="mood-option" data-mood="muito-feliz">
+                    <span class="mood-emoji">😄</span>
+                    <div class="mood-label">Muito Feliz</div>
+                </div>
+                <div class="mood-option" data-mood="feliz">
+                    <span class="mood-emoji">😊</span>
+                    <div class="mood-label">Feliz</div>
+                </div>
+                <div class="mood-option" data-mood="neutro">
+                    <span class="mood-emoji">😐</span>
+                    <div class="mood-label">Neutro</div>
+                </div>
+                <div class="mood-option" data-mood="triste">
+                    <span class="mood-emoji">😔</span>
+                    <div class="mood-label">Triste</div>
+                </div>
+                <div class="mood-option" data-mood="muito-triste">
+                    <span class="mood-emoji">😢</span>
+                    <div class="mood-label">Muito Triste</div>
+                </div>
+            </div>
+            <div id="selectedMoodDisplay" class="selected-mood" style="display: none;">
+                <p>Humor selecionado: <span id="selectedMoodText"></span></p>
+            </div>
+        </div>
     </div>
 </div>
+
+<script>
+    let selectedMood = null;
+
+    function selectMood(element, mood) {
+        // Remove seleção anterior
+        document.querySelectorAll('.mood-option').forEach(opt => {
+            opt.classList.remove('selected');
+        });
+
+        // Adiciona seleção atual
+        element.classList.add('selected');
+        selectedMood = mood;
+
+        // Mostra humor selecionado
+        const display = document.getElementById('selectedMoodDisplay');
+        const text = document.getElementById('selectedMoodText');
+
+        const moodLabels = {
+            'muito-feliz': 'Muito Feliz 😄',
+            'feliz': 'Feliz 😊',
+            'neutro': 'Neutro 😐',
+            'triste': 'Triste 😔',
+            'muito-triste': 'Muito Triste 😢'
+        };
+
+        text.textContent = moodLabels[mood];
+        display.style.display = 'block';
+    }
+
+    // Adicionar event listeners
+    document.querySelectorAll('.mood-option').forEach(option => {
+        option.addEventListener('click', function() {
+            selectMood(this, this.dataset.mood);
+        });
+    });
+</script>
 </body>
 </html>
