@@ -143,5 +143,5 @@ Toda a aplicação (HTML, CSS e JavaScript) está contida em um único arquivo H
 * **Lembretes:** Opção para definir lembretes diários para registrar o humor.
 
 
-![](.\site_01.png)
-![](.\site_02.png)
+![](site_01.png)
+![](site_02.png)
