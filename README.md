@@ -141,3 +141,7 @@ Toda a aplicação (HTML, CSS e JavaScript) está contida em um único arquivo H
 * **Tendências de Humor:** Desenvolver análises mais avançadas, como mostrar tendências de humor ao longo de semanas ou meses.
 * **Proteção por Senha/Sincronização na Nuvem (Avançado):** Para usuários que desejam mais privacidade ou acesso entre dispositivos (exigiria um backend).
 * **Lembretes:** Opção para definir lembretes diários para registrar o humor.
+
+
+![](.\site_01.png)
+![](.\site_02.png)
